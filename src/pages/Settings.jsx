@@ -725,13 +725,48 @@ const Settings = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-slate-900">Đồng bộ Dữ liệu Đám mây (Supabase)</h3>
-                                <p className="text-sm text-slate-600">Đồng bộ dữ liệu hiện tại lên Cloud Database để các tài khoản khác cùng nhận được.</p>
+                                <p className="text-sm text-slate-600">Đồng bộ dữ liệu hiện tại lên Cloud Database.</p>
                             </div>
                         </div>
 
-                        <div className="bg-white p-4 rounded-lg border border-indigo-100 mb-4 text-sm text-slate-600">
-                            <p className="mb-2"><strong>Lưu ý:</strong> Chức năng này yêu cầu bạn đã cấu hình <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_ANON_KEY</code> trong file <code>.env</code>.</p>
-                            <p>Dữ liệu sẽ được đẩy lên Cloud. Nếu ID trùng nhau, dữ liệu trên Cloud sẽ được cập nhật theo dữ liệu ở máy này.</p>
+                        {/* Configuration Form */}
+                        <div className="bg-white p-4 rounded-lg border border-indigo-100 mb-4 space-y-3">
+                            <h4 className="font-semibold text-slate-800 text-sm">Cấu hình Kết nối</h4>
+                            <div className="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Supabase Project URL</label>
+                                    <input
+                                        type="password"
+                                        id="sb_url"
+                                        placeholder="https://xyz.supabase.co"
+                                        className="w-full px-3 py-2 border rounded-md text-sm"
+                                        defaultValue={localStorage.getItem('supabase_url') || ''}
+                                        onChange={(e) => localStorage.setItem('supabase_url', e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-600 mb-1">Supabase Anon Key</label>
+                                    <input
+                                        type="password"
+                                        id="sb_key"
+                                        placeholder="eyJ..."
+                                        className="w-full px-3 py-2 border rounded-md text-sm"
+                                        defaultValue={localStorage.getItem('supabase_key') || ''}
+                                        onChange={(e) => localStorage.setItem('supabase_key', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="pt-2 flex justify-end">
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded hover:bg-slate-700"
+                                >
+                                    Lưu & Tải lại Trang
+                                </button>
+                            </div>
+                            <p className="text-xs text-slate-400 italic mt-2">
+                                * Điền thông tin từ Supabase Project Settings -&gt; API. Nếu bạn đã cấu hình file .env, các ô này có thể bỏ trống.
+                            </p>
                         </div>
 
                         {importStatus === 'sync_cloud' && (
