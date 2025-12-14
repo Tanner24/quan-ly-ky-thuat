@@ -716,15 +716,79 @@ const Settings = () => {
             )}
             {activeTab === 'projects' && <ProjectManagement />}
             {activeTab === 'backup' && (
-                <div className="p-4 bg-white rounded-xl shadow-sm space-y-4">
-                    <p className="text-sm text-slate-500">Dùng chức năng này để sao lưu toàn bộ hệ thống hoặc chuyển dữ liệu sang máy khác.</p>
-                    <div className="flex gap-4">
-                        <button onClick={handleExport} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg">
-                            <Download className="w-4 h-4 mr-2" /> Xuất JSON
+                <div className="space-y-6">
+                    {/* Cloud Sync Section */}
+                    <div className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border border-blue-100 shadow-sm">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-white rounded-lg shadow-sm text-indigo-600">
+                                <RefreshCw className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900">Đồng bộ Dữ liệu Đám mây (Supabase)</h3>
+                                <p className="text-sm text-slate-600">Đồng bộ dữ liệu hiện tại lên Cloud Database để các tài khoản khác cùng nhận được.</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-lg border border-indigo-100 mb-4 text-sm text-slate-600">
+                            <p className="mb-2"><strong>Lưu ý:</strong> Chức năng này yêu cầu bạn đã cấu hình <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_ANON_KEY</code> trong file <code>.env</code>.</p>
+                            <p>Dữ liệu sẽ được đẩy lên Cloud. Nếu ID trùng nhau, dữ liệu trên Cloud sẽ được cập nhật theo dữ liệu ở máy này.</p>
+                        </div>
+
+                        {importStatus === 'sync_cloud' && (
+                            <div className="mb-4">
+                                <div className="w-full bg-slate-200 rounded-full h-2.5 mb-1">
+                                    <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                                </div>
+                                <p className="text-xs text-center text-slate-500">{progress}%</p>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={async () => {
+                                if (!window.confirm('Bạn có chắc muốn đồng bộ dữ liệu lên Đám mây?')) return;
+                                try {
+                                    setImportStatus('sync_cloud');
+                                    setProgress(0);
+                                    const { syncLocalToCloud } = await import('../utils/syncToSupabase');
+                                    const res = await syncLocalToCloud((msg, pct) => {
+                                        // Simple toast or log could go here, for now using progress bar state if we added message state
+                                        console.log(msg);
+                                        setProgress(pct);
+                                    });
+                                    if (res.success) {
+                                        alert('Đồng bộ thành công!');
+                                    } else {
+                                        alert('Lỗi: ' + res.error);
+                                    }
+                                } catch (e) {
+                                    alert('Lỗi: ' + e.message);
+                                } finally {
+                                    setImportStatus(null);
+                                    setProgress(0);
+                                }
+                            }}
+                            disabled={importStatus === 'sync_cloud'}
+                            className="flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow-md shadow-indigo-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {importStatus === 'sync_cloud' ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                            {importStatus === 'sync_cloud' ? 'Đang đồng bộ...' : 'Bắt đầu Đồng bộ lên Cloud'}
                         </button>
-                        <button onClick={() => fileInputRef.current.click()} className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg">
-                            <Upload className="w-4 h-4 mr-2" /> Nhập JSON
-                        </button>
+                    </div>
+
+                    {/* Local Backup Section */}
+                    <div className="p-4 bg-white rounded-xl shadow-sm space-y-4 border border-slate-100">
+                        <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-bold text-slate-800">Sao lưu Cục bộ (JSON)</h3>
+                        </div>
+                        <p className="text-sm text-slate-500">Dùng chức năng này để sao lưu toàn bộ hệ thống hoặc chuyển dữ liệu sang máy khác thông qua file.</p>
+                        <div className="flex gap-4">
+                            <button onClick={handleExport} className="flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
+                                <Download className="w-4 h-4 mr-2" /> Xuất JSON
+                            </button>
+                            <button onClick={() => fileInputRef.current.click()} className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                                <Upload className="w-4 h-4 mr-2" /> Nhập JSON
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
